@@ -1,0 +1,26 @@
+{
+  "name": "NoNameRPG",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Smail000/JsRPG.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Smail000/JsRPG/issues"
+  },
+  "homepage": "https://github.com/Smail000/JsRPG#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "ip": "^1.1.5",
+    "socket.io": "^4.4.1"
+  }
+}
