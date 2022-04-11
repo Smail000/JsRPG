@@ -6,6 +6,4 @@ save:
 exit:
 	git checkout master
 
-sae:
-	save
-	exit
+sae: save exit
