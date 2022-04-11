@@ -19,8 +19,8 @@ app.use(express.static('static'))
 
 // Роутинг
 app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/index.html');
-  res.send('<h1>Hello from backend!</h1>');
+  res.sendFile(__dirname + '/index.html');
+  // res.send('<h1>Hello from backend!</h1>');
 });
 
 // 
