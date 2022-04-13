@@ -51,7 +51,7 @@ class Screen {
     draw() {
         this.circle = new PIXI.Graphics();
         this.circle.beginFill(0x5cafe2);
-        this.circle.drawCircle(0, 0, 80);
+        this.circle.drawCircle(0, 0, 20);
         this.stage.addChild(this.circle);
 
         this.stage.on('pointermove', (e) => {
