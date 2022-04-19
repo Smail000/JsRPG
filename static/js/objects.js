@@ -1,11 +1,12 @@
 
 
+
 class Screen {
     constructor() {
         this.renderer = new PIXI.Renderer({
             width: ScreenWidth,
             height: ScreenHeight,
-            backgroundColor: 0x1099bb,
+            backgroundColor: 0x090033, //PIXI.utils.rgb2hex([16,0,89]),
             resolution: 1,
         });
         document.body.appendChild(this.renderer.view);
@@ -27,19 +28,15 @@ class Screen {
 
         this.stage = new PIXI.Container()
         this.stage.interactive = true
-        
-        
+
+
+
         this.ticker.add(this.render.bind(this), PIXI.UPDATE_PRIORITY.LOW)
-        this.ticker.start()
-        
-        this.draw()
-        
-        console.log('It works!')
 
-
+        // this.ticker.start()
         
     }
-
+    
     render() {
         this.renderer.render(this.stage)
     }
@@ -48,16 +45,24 @@ class Screen {
         return this.renderer.screen
     }
 
-    draw() {
-        this.circle = new PIXI.Graphics();
-        this.circle.beginFill(0x5cafe2);
-        this.circle.drawCircle(0, 0, 20);
-        this.stage.addChild(this.circle);
-
-        this.stage.on('pointermove', (e) => {
-            this.circle.x = e.data.global.x
-            this.circle.y = e.data.global.y
+    on_resize(func) {
+        window.addEventListener("resize", () => {
+            func()
         })
+    }
+}
 
+class SimpleObject {
+    constructor(texture) {
+        this.obj = new PIXI.Sprite(texture)
+        this.obj.anchor.set(0.5)
+        this.obj.interactive = true
+        this.obj.buttonMode = true
+        window.app.stage.addChild(this.obj)
+    }
+
+    change_texture(texture) {
+        // console.log(1);
+        this.obj.texture = texture
     }
 }
