@@ -151,7 +151,7 @@ setInterval(() => {
     }, 
     collision: {
       enable: true,
-      distance: 3,
+      distance: 1.5,
     }
   })
   objectCount += 1

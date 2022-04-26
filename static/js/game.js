@@ -14,7 +14,7 @@ window.app = app
 
 
 // "Генерация" звезд
-for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)))+1;i++) { // 
+for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)));i++) { // 
     var stars_obj = new SimpleObject(textures.starTexture)
     stars_obj.obj.scale.set(app.px/10)
     stars_obj.obj.x = app.px*50
@@ -41,6 +41,8 @@ airship.obj.y = app.py * 80
 // Реация на движение
 socket.on('move', (msg) => {
     // console.log(msg)
+
+    // Отрисовка игроков
     for (var player of msg.players) {
         if (player.name != name) {
             if (Object.keys(otherPlayers).includes(player.name)) {
@@ -55,6 +57,7 @@ socket.on('move', (msg) => {
         }
     }
 
+    // Отрисовка объектов
     let allObjectsIds = objects.map((n) => n.id)
     for (var obj of msg.objects) {
 
@@ -63,8 +66,6 @@ socket.on('move', (msg) => {
                 if (obj.id == elem.id) {
                     objects[id].obj.obj.x = (obj.x/100) * window.innerWidth
                     objects[id].obj.obj.y = (obj.y/100) * window.innerHeight
-                    // console.log(objects[id].obj.x);
-                    // console.log(objects[id].obj.y);
                 }
                 return obj.id == elem.id
             })
@@ -80,12 +81,13 @@ socket.on('move', (msg) => {
             })
         }
     }
+
+    // Сборшик мусора
     allObjectsIds = msg.objects.map((n) => n.id)
     let objIdsToRemove = []
     for (let obj of objects) {
         if (!allObjectsIds.includes(obj.id)) {
             obj.obj.obj.destroy()
-            // console.log(obj);
             objIdsToRemove.push(obj.id)
         }
     }
@@ -100,9 +102,14 @@ app.stage.on('pointermove', (e) => {
     coordChanged = true
 })
 
+// Реакция на коллизию
 socket.on('collision', obj => {
     if (obj.textureName == 'speedBoost') {
-        console.log('speedBoost activated!')
+        bulletSize = 1
+        setTimeout(() => {
+            bulletSize = .15
+        }, 3000)
+        // console.log('speedBoost activated!')
     }
 })
 
