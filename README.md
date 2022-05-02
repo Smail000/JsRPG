@@ -1,6 +1,9 @@
+# SpaceInvader
+![preRelease](https://github.com/Smail000/SpaceInvader/blob/master/preRelease.jpg)
 # Discription
 Simple 2D web retro-game based on games from past. In this game you take the role of captain of space shattle and your main target - to survive in enemy's endless attack. 
 Also you can ask you friends to help you. They can connect to the server through wifi local connection. Ip address will appear after the game starts.
+**All browsers (android and pc) support**
 # What was used
 ###### Backend
 - NodeJs
