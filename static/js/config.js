@@ -29,7 +29,7 @@ for (let i = 1; i < 66; i++) {
 }
 
 // Функции
-// Рандомное чилсо от nim включая до max включая
+// Рандомное чилсо от min включая до max включая
 function randint(min, max) {
     return Math.floor(Math.random() * (max+1 - min)) + min
   }
@@ -41,8 +41,8 @@ function createTestObj() {
         textureName: `bullet${i < 10 ? `0${i}` : i}`,
         scale: bulletSize, 
         rotate: -Math.PI/2, 
-        x: airship.obj.x/app.px, 
-        y: airship.obj.y/app.py-1, 
+        x: airship.body.x/app.px, 
+        y: airship.body.y/app.py-1, 
         cmd: {
             drop: {
                 speed: -0.5
@@ -57,23 +57,3 @@ function createTestObj() {
         }
     })
 }
-
-//
-// function createTestObj() {
-//     socket.emit('createObject', {
-//         textureName: `speedBoost`,
-//         scale: 1, 
-//         rotate: 0, 
-//         x: airship.obj.x/app.px, 
-//         y: airship.obj.y/app.py-1, 
-//         cmd: {
-//             drop: {
-//                 speed: -0.5
-//             },
-//             attack: {
-//                 damage: 10
-//             }
-//         }, 
-//         collision: false
-//     })
-// }

@@ -3,9 +3,8 @@ const socket = io()
 
 // Получение имени
 while (true) {
-    var name = prompt('Введите имя >', '')
-    // console.log(name);
-    if (name != 'null' && name.trim() != '') {break}
+    var PlayerName = prompt('Введите имя >', '')
+    if (PlayerName != 'null' && PlayerName.trim() != '') break
 }
 
 // Создание окна
@@ -16,43 +15,41 @@ window.app = app
 // "Генерация" звезд
 for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)));i++) { // 
     var stars_obj = new SimpleObject(textures.starTexture)
-    stars_obj.obj.scale.set(app.px/10)
-    stars_obj.obj.x = app.px*50
-    stars_obj.obj.y = i*starsHeight*(app.px/10) + starsHeight*(app.px/10)/2
+    stars_obj.body.scale.set(app.px/10)
+    stars_obj.body.x = app.px*50
+    stars_obj.body.y = i*starsHeight*(app.px/10) + starsHeight*(app.px/10)/2
     starsArr.push(stars_obj)
 }
 
 // Запуск звезд
 app.ticker.add(delta => {
     for (let star of starsArr) {
-        star.obj.y += starsSpeed
-        if (star.obj.y > window.innerHeight+(starsHeight*(app.px/10))/2) {
-            star.obj.y = -(starsHeight*(app.px/10))/2
+        star.body.y += starsSpeed
+        if (star.body.y > window.innerHeight+(starsHeight*(app.px/10))/2) {
+            star.body.y = -(starsHeight*(app.px/10))/2
         }
     }
 })
 
 // Создание корабля
 var airship = new SimpleObject(textures.airshipTexture)
-airship.obj.scale.set(0.33)
-airship.obj.x = app.px * 50
-airship.obj.y = app.py * 80
+airship.body.scale.set(0.33)
+airship.body.x = app.px * 50
+airship.body.y = app.py * 80
 
 // Реация на движение
 socket.on('move', (msg) => {
-    // console.log(msg)
-
     // Отрисовка игроков
     for (var player of msg.players) {
-        if (player.name != name) {
+        if (player.name != PlayerName) {
             if (Object.keys(otherPlayers).includes(player.name)) {
-                otherPlayers[player.name].obj.x = (player.x/100) * window.innerWidth
-                otherPlayers[player.name].obj.y = (player.y/100) * window.innerHeight
+                otherPlayers[player.name].body.x = (player.x/100) * window.innerWidth
+                otherPlayers[player.name].body.y = (player.y/100) * window.innerHeight
             } else {
                 otherPlayers[player.name] = new SimpleObject(textures.airshipTexture)
-                otherPlayers[player.name].obj.scale.set(0.33)
-                otherPlayers[player.name].obj.x = app.px * 50
-                otherPlayers[player.name].obj.y = app.py * 80
+                otherPlayers[player.name].body.scale.set(0.33)
+                otherPlayers[player.name].body.x = app.px * 50
+                otherPlayers[player.name].body.y = app.py * 80
             }
         }
     }
@@ -64,17 +61,17 @@ socket.on('move', (msg) => {
         if (allObjectsIds.includes(obj.id)) {
             objects.find((elem, id, _) => {
                 if (obj.id == elem.id) {
-                    objects[id].obj.obj.x = (obj.x/100) * window.innerWidth
-                    objects[id].obj.obj.y = (obj.y/100) * window.innerHeight
+                    objects[id].obj.body.x = (obj.x/100) * window.innerWidth
+                    objects[id].obj.body.y = (obj.y/100) * window.innerHeight
                 }
                 return obj.id == elem.id
             })
         } else {
             let newObj = new SimpleObject(textures[obj.textureName])
-            newObj.obj.scale.set(obj.scale)
-            newObj.obj.rotation = obj.rotate
-            newObj.obj.x = (obj.x/100) * window.innerWidth
-            newObj.obj.y = (obj.y/100) * window.innerHeight
+            newObj.body.scale.set(obj.scale)
+            newObj.body.rotation = obj.rotate
+            newObj.body.x = (obj.x/100) * window.innerWidth
+            newObj.body.y = (obj.y/100) * window.innerHeight
             objects.push({
                 id: obj.id,
                 obj: newObj
@@ -87,7 +84,7 @@ socket.on('move', (msg) => {
     let objIdsToRemove = []
     for (let obj of objects) {
         if (!allObjectsIds.includes(obj.id)) {
-            obj.obj.obj.destroy()
+            obj.obj.body.destroy()
             objIdsToRemove.push(obj.id)
         }
     }
@@ -97,8 +94,8 @@ socket.on('move', (msg) => {
 
 // Запуск корабля в движение
 app.stage.on('pointermove', (e) => {
-    airship.obj.x = e.data.global.x // app.renderer.plugins.interaction.mouse.global.x
-    airship.obj.y = e.data.global.y // app.renderer.plugins.interaction.mouse.global.y
+    airship.body.x = e.data.global.x // app.renderer.plugins.interaction.mouse.global.x
+    airship.body.y = e.data.global.y // app.renderer.plugins.interaction.mouse.global.y
     coordChanged = true
 })
 
@@ -117,7 +114,7 @@ socket.on('collision', obj => {
 socket.on('playerDisconnected', (msg) => {
     for (let userName of Object.keys(otherPlayers)) {
         if (msg.data == userName) {
-            otherPlayers[userName].obj.destroy()
+            otherPlayers[userName].body.destroy()
             delete otherPlayers[userName]
         }
     }
@@ -125,9 +122,9 @@ socket.on('playerDisconnected', (msg) => {
 
 // Регистрация на игру
 socket.emit('register', {
-    'name': name,
-    'x': airship.obj.x/app.px,
-    'y': airship.obj.y/app.py,
+    name: PlayerName,
+    x: airship.body.x/app.px,
+    y: airship.body.y/app.py,
 })
 
 
@@ -139,8 +136,8 @@ app.ticker.start()
 setInterval(() => { 
     if (coordChanged) {
         socket.emit('move', {
-            'x': airship.obj.x/app.px,
-            'y': airship.obj.y/app.py
+            x: airship.body.x/app.px,
+            y: airship.body.y/app.py
         })
         coordChanged = false
     }

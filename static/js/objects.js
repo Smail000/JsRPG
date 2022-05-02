@@ -54,15 +54,14 @@ class Screen {
 
 class SimpleObject {
     constructor(texture) {
-        this.obj = new PIXI.Sprite(texture)
-        this.obj.anchor.set(0.5)
-        this.obj.interactive = true
-        this.obj.buttonMode = true
-        window.app.stage.addChild(this.obj)
+        this.body = new PIXI.Sprite(texture)
+        this.body.anchor.set(0.5)
+        this.body.interactive = true
+        this.body.buttonMode = true
+        window.app.stage.addChild(this.body)
     }
 
     change_texture(texture) {
-        // console.log(1);
-        this.obj.texture = texture
+        this.body.texture = texture
     }
 }
