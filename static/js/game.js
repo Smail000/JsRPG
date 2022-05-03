@@ -12,7 +12,7 @@ const app = new Screen()
 window.app = app
 
 
-// "Генерация" звезд
+// Формирование звезд
 for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)));i++) { // 
     var stars_obj = new SimpleObject(textures.starTexture)
     stars_obj.body.scale.set(app.px/10)
@@ -99,17 +99,6 @@ app.stage.on('pointermove', (e) => {
     coordChanged = true
 })
 
-// Реакция на коллизию
-socket.on('collision', obj => {
-    if (obj.textureName == 'speedBoost') {
-        bulletSize = 1
-        setTimeout(() => {
-            bulletSize = .15
-        }, 3000)
-        // console.log('speedBoost activated!')
-    }
-})
-
 // Реакция на отключенных пользователей
 socket.on('playerDisconnected', (msg) => {
     for (let userName of Object.keys(otherPlayers)) {
@@ -142,9 +131,4 @@ setInterval(() => {
         coordChanged = false
     }
 }, 10)
-
-// Пули)
-setInterval(() => {
-    createTestObj()
-}, 500)
 
