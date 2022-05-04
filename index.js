@@ -101,11 +101,10 @@ setInterval(() => {
 
 var bulletsShooter = setInterval(() => {
     for (let player of playersInGame) {
-        GameObjects.push(getBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet01'))
-        console.log(GameObjects)
+        GameObjects.push(getBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet11'))
         GameObjectCount += 1
     }
-}, 500)
+}, 100)
 
 var boostGenerator = setInterval(() => {
     GameObjects.push({
