@@ -8,7 +8,7 @@ const server = http.createServer(app)
 const { Server } = require("socket.io")
 const io = new Server(server)
 
-const { debug, online, hostname, getBullet } = require('./config.js')
+const { debug, online, hostname, createBullet, createSpeedBoost, createEnemy } = require('./config.js')
 const { randint, getDistance } = require('./functions.js')
 
 // Variables
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
     socket.on('createObject', (obj) => { // object example
         obj.id = GameObjectCount
-        GameObjectCount += 1
+        GameObjectCount++
         GameObjects.push(obj)
     })
 
@@ -78,7 +78,9 @@ io.on('connection', (socket) => {
 
 // tick updater loop
 setInterval(() => {
-    for (var obj of GameObjects) {
+    for (var objId in GameObjects) {
+        let obj = GameObjects[objId]
+
         if (obj.drop.enable) {
             obj.x += obj.drop.speedX
             obj.y += obj.drop.speedY
@@ -87,10 +89,22 @@ setInterval(() => {
         if (obj.collision.enable) {
             for (let player of playersInGame)  {
                 if (getDistance(player.x, player.y, obj.x, obj.y) <= obj.collision.distance) {
-                    GameObjects.push(getBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet11'))
-                    GameObjectCount += 1
-                    GameObjects = GameObjects.filter(n => n.id != obj.id)
-                    break
+                    GameObjects.push(createBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet21'))
+                    GameObjectCount++
+                    GameObjects.splice(objId, 1)
+                    return
+                }
+            }
+        }
+
+
+        if (obj.collision.damageable) {
+            for (let anotherObjId in GameObjects)  {
+                let anotherObj = GameObjects[anotherObjId]
+                if (anotherObj.collision.canDamage && (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance)) {
+                    GameObjects.splice(anotherObjId, 1)
+                    console.log('got damage(')
+                    return
                 }
             }
         }
@@ -101,32 +115,19 @@ setInterval(() => {
 
 var bulletsShooter = setInterval(() => {
     for (let player of playersInGame) {
-        GameObjects.push(getBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet11'))
-        GameObjectCount += 1
+        GameObjects.push(createBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet01'))
+        GameObjectCount++
     }
-}, 100)
+}, 800)
 
 var boostGenerator = setInterval(() => {
-    GameObjects.push({
-        id: GameObjectCount,
-        textureName: `speedBoost`,
-        scale: .25, 
-        rotate: 0, 
-        x: randint(3, 97), 
-        y: -10,
-        drop: {
-            enable: true,
-            speedX: 0,
-            speedY: 0.2
-        },
-        collision: {
-            enable: true,
-            distance: 3,
-            damage: 0,
-        }
-    })
-    // GameObjects.push(getBullet(x=randint(3, 97), y=-1, id=GameObjectCount, textureName='speedBoost'))
-    GameObjectCount += 1
+    GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
+    GameObjectCount++
+}, 20000)
+
+setTimeout(() => {
+    GameObjects.push(createEnemy(x=50, y=5, id=GameObjectCount))
+    GameObjectCount++
 }, 5000)
 
 // here we go

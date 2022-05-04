@@ -18,9 +18,10 @@ var textures = {
     airshipTexture: new PIXI.Texture.from(`assets/airship/10B.png`),
     starTexture: new PIXI.Texture.from(`assets/stars/Stars.png`),
     speedBoost: new PIXI.Texture.from(`assets/boxes/1.png`),
+    simpleEnemy: new PIXI.Texture.from(`assets/airship/11B.png`),
 }
 
-for (let i = 1; i < 66; i++) {
+for (let i = 1; i < 22; i++) {
     i = (i < 10 ? `0${i}` : i).toString()
     textures[`bullet${i}`] = new PIXI.Texture.from(`assets/bullets/${i}.png`)
 }
