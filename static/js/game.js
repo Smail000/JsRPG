@@ -11,7 +11,6 @@ while (true) {
 const app = new Screen()
 window.app = app
 
-
 // Формирование звезд
 for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)));i++) { // 
     var stars_obj = new SimpleObject(textures.starTexture)

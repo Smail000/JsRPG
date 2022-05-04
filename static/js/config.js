@@ -23,7 +23,6 @@ var textures = {
 for (let i = 1; i < 66; i++) {
     i = (i < 10 ? `0${i}` : i).toString()
     textures[`bullet${i}`] = new PIXI.Texture.from(`assets/bullets/${i}.png`)
-    console.log(textures);
 }
 
 // Функции
