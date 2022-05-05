@@ -8,12 +8,16 @@ const server = http.createServer(app)
 const { Server } = require("socket.io")
 const io = new Server(server)
 
-const { debug, online, hostname, createBullet, createSpeedBoost, createEnemy } = require('./config.js')
+const { 
+    debug, online, hostname, createBullet, 
+    createSpeedBoost, createEnemy, createPlayer, States } = require('./config.js')
 const { randint, getDistance } = require('./functions.js')
+const { performance } = require('perf_hooks')
 
 // Variables
 var playersInGame = []
-// player -> {name: string, socket: socket object, x: number, y: number, loop: loopObject, bulletSize}
+// player -> {name: string, socket: socket object, x: number, y: number, state: string, stateTime: number
+// options: { airshipTexture: string, bulletTexture: string, bulletDamage: number, health: number }}
 
 var GameObjects = [] // object -> 
 // {id: number, textureName: string, scale: number, rotate: number, x: number, y: number, 
@@ -34,12 +38,7 @@ io.on('connection', (socket) => {
 
     socket.on('register', (msg) => { // name, x, y
         if (debug) console.log('a user registered to the game')
-        playersInGame.push({
-            name: msg.name,
-            socket: socket,
-            x: msg.x,
-            y: msg.y
-        })
+        playersInGame.push(createPlayer(msg.name, socket, msg.x, msg.y))
     })
 
     socket.on('createObject', (obj) => { // object example
@@ -52,7 +51,7 @@ io.on('connection', (socket) => {
         for (let player of playersInGame) {
             if (player['socket'] == socket) {
 
-                // if (getDistance(player.x, player.y, msg.x, msg.y) > 1) console.log('cheat') // anti fast move detecter
+                // if (getDistance(player.x, player.y, msg.x, msg.y) > 1) console.log('cheat') // fast move detecter
                 // console.log(getDistance(player.x, player.y, msg.x, msg.y))
 
                 player.x = msg.x
@@ -89,8 +88,11 @@ setInterval(() => {
         if (obj.collision.enable) {
             for (let player of playersInGame)  {
                 if (getDistance(player.x, player.y, obj.x, obj.y) <= obj.collision.distance) {
-                    GameObjects.push(createBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet21'))
-                    GameObjectCount++
+                    
+                    player.state = 'boost'
+                    player.stateTime = performance.now()
+                    States.boost.func(player)
+
                     GameObjects.splice(objId, 1)
                     return
                 }
@@ -110,12 +112,27 @@ setInterval(() => {
         }
     }
     GameObjects = GameObjects.filter(n => n.y < 115 && n.y > -15 && n.x < 115 && n.x > -15 )
-    io.emit('move', {players: playersInGame.map(n => ({name: n.name, x: n.x, y: n.y})), objects: GameObjects})
+    io.emit('move', {players: playersInGame.map(n => ({
+        name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
+    })), objects: GameObjects})
 }, 10)
 
-var bulletsShooter = setInterval(() => {
+var bulletsShooterAndStateChecker = setInterval(() => {
     for (let player of playersInGame) {
-        GameObjects.push(createBullet(x=player.x, y=player.y, id=GameObjectCount, textureName='bullet01'))
+        if (!isNaN(States[player.state].duration) && (performance.now()-player.stateTime)/1000 > States[player.state].duration) {
+            States.base.func(player)
+            player.state = 'base'
+            player.stateTime = performance.now()
+        }
+        GameObjects.push(
+            createBullet(
+                x=player.x, 
+                y=player.y, 
+                id=GameObjectCount, 
+                textureName=player.options.bulletTexture, 
+                speed=player.options.bulletSpeed
+            )
+        )
         GameObjectCount++
     }
 }, 800)

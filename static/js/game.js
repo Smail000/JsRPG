@@ -45,7 +45,7 @@ socket.on('move', (msg) => {
                 otherPlayers[player.name].body.x = (player.x/100) * window.innerWidth
                 otherPlayers[player.name].body.y = (player.y/100) * window.innerHeight
             } else {
-                otherPlayers[player.name] = new SimpleObject(textures.airshipTexture)
+                otherPlayers[player.name] = new SimpleObject(textures[player.texture])
                 otherPlayers[player.name].body.scale.set(0.33)
                 otherPlayers[player.name].body.x = app.px * 50
                 otherPlayers[player.name].body.y = app.py * 80

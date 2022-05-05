@@ -1,30 +1,66 @@
+const { performance } = require('perf_hooks')
 module.exports.debug = true
 module.exports.online = true
 module.exports.hostname = module.exports.online ? '0.0.0.0' : '127.0.0.1'
 
-module.exports.createObject = () => ({
-        id: 0,
-        textureName: '',
-        scale: 0.25, 
-        rotate: 0, 
-        x: 0, 
-        y: 0,
-        drop: {
-            enable: false,
-            speedX: 0,
-            speedY: 0,
-        },
-        collision: {
-            enable: false,
-            damageable: false,
-            canDamage: false,
-            distance: 0,
-            damage: 0,
+module.exports.States = { // seconds
+    base: {
+        duration: NaN,
+        func: (obj) => {
+            obj.options.bulletTexture = 'bullet01'
+            obj.options.bulletDamage = 1
+            obj.options.bulletSpeed = -0.5
         }
-    }
-)
+    },
 
-module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01') => {
+    boost: {
+        duration: 5,
+        func: (obj) => {
+            obj.options.bulletTexture = 'bullet21'
+            obj.options.bulletDamage = 5
+            obj.options.bulletSpeed = -1
+        }
+    },
+}
+
+module.exports.createPlayer = (name, socket, x, y) => ({
+    name: name,
+    socket: socket,
+    x: x,
+    y: y,
+    state: 'base',
+    stateTime: performance.now(),
+    options: {
+        airshipTexture: 'airshipTexture',
+        bulletTexture: 'bullet01',
+        bulletDamage: 1,
+        bulletSpeed: -0.5,
+        health: 100
+    }
+})
+
+module.exports.createObject = () => ({
+    id: 0,
+    textureName: '',
+    scale: 0.25, 
+    rotate: 0, 
+    x: 0, 
+    y: 0,
+    drop: {
+        enable: false,
+        speedX: 0,
+        speedY: 0,
+    },
+    collision: {
+        enable: false,
+        damageable: false,
+        canDamage: false,
+        distance: 0,
+        damage: 0,
+    }
+})
+
+module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.5) => {
     let object = module.exports.createObject()
     object.x = x
     object.y = y
@@ -33,7 +69,7 @@ module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01') => {
     object.textureName = textureName
 
     object.drop.enable = true
-    object.drop.speedY = -0.5
+    object.drop.speedY = speed
 
     object.collision.canDamage = true
     object.collision.damage = 1
