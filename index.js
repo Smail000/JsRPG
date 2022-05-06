@@ -10,13 +10,15 @@ const io = new Server(server)
 
 const { 
     debug, online, hostname, createBullet, 
-    createSpeedBoost, createEnemy, createPlayer, States } = require('./config.js')
+    createSpeedBoost, createEnemy, createPlayer, 
+    States, speedLimit, speedLimitBorder } = require('./config.js')
 const { randint, getDistance } = require('./functions.js')
 const { performance } = require('perf_hooks')
 
 // Variables
 var playersInGame = []
-// player -> {name: string, socket: socket object, x: number, y: number, state: string, stateTime: number
+// player -> {name: string, socket: socket object, x: number, y: 
+// number, state: string, stateTime: number, speedLimitReachedTimes: number,
 // options: { airshipTexture: string, bulletTexture: string, bulletDamage: number, health: number }}
 
 var GameObjects = [] // object -> 
@@ -41,18 +43,23 @@ io.on('connection', (socket) => {
         playersInGame.push(createPlayer(msg.name, socket, msg.x, msg.y))
     })
 
-    socket.on('createObject', (obj) => { // object example
-        obj.id = GameObjectCount
-        GameObjectCount++
-        GameObjects.push(obj)
-    })
+    // socket.on('createObject', (obj) => { // object example
+    //     obj.id = GameObjectCount
+    //     GameObjectCount++
+    //     GameObjects.push(obj)
+    // })
 
     socket.on('move', (msg) => { // x, y
         for (let player of playersInGame) {
             if (player['socket'] == socket) {
 
-                // if (getDistance(player.x, player.y, msg.x, msg.y) > 1) console.log('cheat') // fast move detecter
-                // console.log(getDistance(player.x, player.y, msg.x, msg.y))
+                if (getDistance(player.x, player.y, msg.x, msg.y) > speedLimit) { // fast move detecter
+                    player.speedLimitReachedTimes++
+                    if (player.speedLimitReachedTimes >= speedLimitBorder) {
+                        player.speedLimitReachedTimes = 0
+                        socket.emit('fastMove', {data: Math.round(getDistance(player.x, player.y, msg.x, msg.y))})
+                    }
+                }
 
                 player.x = msg.x
                 player.y = msg.y
@@ -134,6 +141,7 @@ var bulletsShooterAndStateChecker = setInterval(() => {
             )
         )
         GameObjectCount++
+        if (player.speedLimitReachedTimes > 0) player.speedLimitReachedTimes-- 
     }
 }, 800)
 

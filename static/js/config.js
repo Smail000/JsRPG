@@ -13,6 +13,10 @@ var starsArr = []
 var otherPlayers = {}
 var objects = [] // objects -> {id: number, obj: object}
 
+var clicked = false
+var clickedCoords = [0, 0]
+var clickedTimeout = NaN
+
 
 var textures = {
     airshipTexture: new PIXI.Texture.from(`assets/airship/10B.png`),

@@ -98,6 +98,26 @@ app.stage.on('pointermove', (e) => {
     coordChanged = true
 })
 
+// Клик мыши или касание пальца (double click)
+var touchAndClick = () => {
+    let x = app.renderer.plugins.interaction.mouse.global.x
+    let y = app.renderer.plugins.interaction.mouse.global.y
+    if (!clicked) {
+        clicked = true
+        clickedCoords = [x, y]
+        clickedTimeout = setTimeout(() => {clicked = false}, 200)
+    } else {
+        clicked = false
+        clearInterval(clickedTimeout)
+
+        if (((clickedCoords[0]-x)**2+(clickedCoords[1]-y)**2)**0.5 < 10) {
+            alert('double tap')
+        }
+    } 
+}
+app.stage.on('mouseup', touchAndClick)
+app.stage.on('touchend', touchAndClick)
+
 // Реакция на отключенных пользователей
 socket.on('playerDisconnected', (msg) => {
     for (let userName of Object.keys(otherPlayers)) {
@@ -108,12 +128,17 @@ socket.on('playerDisconnected', (msg) => {
     }
 })
 
+socket.on('fastMove', (msg) => {
+    alert(`Превышена скорость движения: ${msg.data} `)
+})
+
 // Регистрация на игру
 socket.emit('register', {
     name: PlayerName,
     x: airship.body.x/app.px,
     y: airship.body.y/app.py,
 })
+
 
 
 

@@ -3,6 +3,9 @@ module.exports.debug = true
 module.exports.online = true
 module.exports.hostname = module.exports.online ? '0.0.0.0' : '127.0.0.1'
 
+module.exports.speedLimit = 5
+module.exports.speedLimitBorder = 10
+
 module.exports.States = { // seconds
     base: {
         duration: NaN,
@@ -30,6 +33,7 @@ module.exports.createPlayer = (name, socket, x, y) => ({
     y: y,
     state: 'base',
     stateTime: performance.now(),
+    speedLimitReachedTimes: 0,
     options: {
         airshipTexture: 'airshipTexture',
         bulletTexture: 'bullet01',
