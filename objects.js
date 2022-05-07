@@ -111,6 +111,7 @@ module.exports.createEnemy = (x=0, y=0, id=0) => {
     object.y = y
     object.id = id
     object.rotate = Math.PI
+    object.scale = 0.2
     object.textureName = 'simpleEnemy'
     object.health = 5
 
@@ -134,7 +135,7 @@ module.exports.createEnemy = (x=0, y=0, id=0) => {
             y: 50,
         }
     ]
-    for (let point of object.roadMovement.points) {point.step = 0.1}
+    for (let point of object.roadMovement.points) {point.step = 0.4}
 
     object.collision.damageable = true
     return object

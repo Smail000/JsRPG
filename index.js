@@ -165,7 +165,7 @@ var boostGenerator = setInterval(() => {
     GameObjectCount++
 }, 20000)
 
-setTimeout(() => {
+setInterval(() => {
     GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
     GameObjectCount++
 }, 5000)

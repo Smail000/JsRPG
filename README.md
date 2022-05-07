@@ -14,7 +14,8 @@ Also you can ask you friends to help you. They can connect to the server through
 - Pixi.js
 # Plans
 - [x] base assets and scripts
-- [ ] enemys
+- [x] enemys
+- [ ] effects
 - [ ] menu
 # How to install
 To right usage you need nodeJS v17+ and git installed. Then follow the instructions
