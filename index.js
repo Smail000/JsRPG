@@ -8,11 +8,9 @@ const server = http.createServer(app)
 const { Server } = require("socket.io")
 const io = new Server(server)
 
-const { 
-    debug, online, hostname, createBullet, 
-    createSpeedBoost, createEnemy, createPlayer, 
-    States, speedLimit, speedLimitBorder } = require('./config.js')
-const { randint, getDistance } = require('./functions.js')
+const { debug, online, hostname, speedLimit, speedLimitBorder } = require('./config.js')
+const { createBullet, createSpeedBoost, createEnemy, createPlayer, States } = require('./objects.js')
+const { randint, getDistance, getCoordsByStep } = require('./functions.js')
 const { performance } = require('perf_hooks')
 
 // Variables
@@ -23,7 +21,8 @@ var playersInGame = []
 
 var GameObjects = [] // object -> 
 // {id: number, textureName: string, scale: number, rotate: number, x: number, y: number, 
-// drop: {enable: boolean, speedX: number, speedY: number}, 
+// lineMovement: {enable: boolean, speedX: number, speedY: number}, 
+// roadMovement: {enable: boolean, points: [{x, y, step}...], correntPointId: number, destroyAfterGoal: bool}, 
 // collision: {enable: bool, distance: number, damage: number}} 
 
 var GameObjectCount = 0
@@ -83,13 +82,24 @@ io.on('connection', (socket) => {
 })
 
 // tick updater loop
-setInterval(() => {
+var updaterLoop = setInterval(() => {
     for (var objId in GameObjects) {
         let obj = GameObjects[objId]
 
-        if (obj.drop.enable) {
-            obj.x += obj.drop.speedX
-            obj.y += obj.drop.speedY
+        if (obj.lineMovement.enable) {
+            obj.x += obj.lineMovement.speedX
+            obj.y += obj.lineMovement.speedY
+        } else if (obj.roadMovement.enable && obj.roadMovement.points.length > obj.roadMovement.correntPointId) {
+            let point = obj.roadMovement.points[obj.roadMovement.correntPointId]
+            let coords = getCoordsByStep(obj.x, obj.y, point.x, point.y, point.step)
+            obj.x = coords[0]
+            obj.y = coords[1]
+            if (coords[2]) {
+                obj.roadMovement.correntPointId++
+            }
+            if (obj.roadMovement.loop && obj.roadMovement.points.length <= obj.roadMovement.correntPointId) {
+                obj.roadMovement.correntPointId = 0
+            }
         }
         
         if (obj.collision.enable) {
@@ -156,7 +166,7 @@ var boostGenerator = setInterval(() => {
 }, 20000)
 
 setTimeout(() => {
-    GameObjects.push(createEnemy(x=50, y=5, id=GameObjectCount))
+    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
     GameObjectCount++
 }, 5000)
 
