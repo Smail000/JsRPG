@@ -50,6 +50,7 @@ module.exports.createObject = () => ({
     rotate: 0, 
     x: 0, 
     y: 0,
+    health: 1,
     drop: {
         enable: false,
         speedX: 0,
@@ -64,7 +65,7 @@ module.exports.createObject = () => ({
     }
 })
 
-module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.5) => {
+module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.5, damage=1) => {
     let object = module.exports.createObject()
     object.x = x
     object.y = y
@@ -76,7 +77,7 @@ module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.
     object.drop.speedY = speed
 
     object.collision.canDamage = true
-    object.collision.damage = 1
+    object.collision.damage = damage
     object.collision.distance = 3
     return object
 }
@@ -104,6 +105,7 @@ module.exports.createEnemy = (x=0, y=0, id=0) => {
     object.id = id
     object.rotate = Math.PI
     object.textureName = 'simpleEnemy'
+    object.health = 5
 
     object.collision.damageable = true
     return object

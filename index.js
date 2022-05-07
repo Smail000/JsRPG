@@ -112,7 +112,11 @@ setInterval(() => {
                 let anotherObj = GameObjects[anotherObjId]
                 if (anotherObj.collision.canDamage && (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance)) {
                     GameObjects.splice(anotherObjId, 1)
-                    console.log('got damage(')
+                    obj.health -= anotherObj.collision.damage
+                    
+                    if (obj.health <= 0) {
+                        GameObjects.splice(objId, 1)
+                    }
                     return
                 }
             }
@@ -137,7 +141,8 @@ var bulletsShooterAndStateChecker = setInterval(() => {
                 y=player.y, 
                 id=GameObjectCount, 
                 textureName=player.options.bulletTexture, 
-                speed=player.options.bulletSpeed
+                speed=player.options.bulletSpeed,
+                damage=player.options.bulletDamage
             )
         )
         GameObjectCount++
