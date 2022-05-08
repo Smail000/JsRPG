@@ -86,43 +86,50 @@ var updaterLoop = setInterval(() => {
     for (var objId in GameObjects) {
         let obj = GameObjects[objId]
 
-        if (obj.lineMovement.enable) {
-            obj.x += obj.lineMovement.speedX
-            obj.y += obj.lineMovement.speedY
-        } else if (obj.roadMovement.enable && obj.roadMovement.points.length > obj.roadMovement.correntPointId) {
-            let point = obj.roadMovement.points[obj.roadMovement.correntPointId]
-            let coords = getCoordsByStep(obj.x, obj.y, point.x, point.y, point.step)
-            obj.x = coords[0]
-            obj.y = coords[1]
-            if (coords[2]) {
-                obj.roadMovement.correntPointId++
-            }
-            if (obj.roadMovement.loop && obj.roadMovement.points.length <= obj.roadMovement.correntPointId) {
-                obj.roadMovement.correntPointId = 0
+        if (obj.movement.enable) {
+            if (obj.type == 'object') {
+                obj.x += obj.movement.speedX
+                obj.y += obj.movement.speedY
+            } else if (obj.movement.points.length > obj.movement.correntPointId) {
+                let point = obj.movement.points[obj.movement.correntPointId]
+                let coords = getCoordsByStep(obj.x, obj.y, point.x, point.y, point.step)
+                obj.x = coords[0]
+                obj.y = coords[1]
+                if (coords[2]) {
+                    obj.movement.correntPointId++
+                }
+                if (obj.movement.loop && obj.movement.points.length <= obj.movement.correntPointId) {
+                    obj.movement.correntPointId = 0
+                }
             }
         }
         
-        if (obj.collision.enable) {
+        if (obj.type == 'object' && obj.collision.enable) {
             for (let player of playersInGame)  {
                 if (getDistance(player.x, player.y, obj.x, obj.y) <= obj.collision.distance) {
-                    
-                    player.state = 'boost'
-                    player.stateTime = performance.now()
-                    States.boost.func(player)
 
-                    GameObjects.splice(objId, 1)
-                    return
+                    if (obj.textureName == 'speedBoost') {
+                        player.state = 'boost'
+                        player.stateTime = performance.now()
+                        States.boost.func(player)
+    
+                        GameObjects.splice(objId, 1)
+                        return
+                    }
+                    
                 }
             }
         }
 
 
-        if (obj.collision.damageable) {
+        if (obj.type == 'entity' && obj.attack.damageable) {
             for (let anotherObjId in GameObjects)  {
                 let anotherObj = GameObjects[anotherObjId]
-                if (anotherObj.collision.canDamage && (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance)) {
+                if (anotherObj.type != 'object') continue
+
+                if (anotherObj.damage.canDamage && (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance)) {
                     GameObjects.splice(anotherObjId, 1)
-                    obj.health -= anotherObj.collision.damage
+                    obj.health -= anotherObj.damage.value
                     
                     if (obj.health <= 0) {
                         GameObjects.splice(objId, 1)
