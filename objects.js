@@ -39,6 +39,7 @@ module.exports.createPlayer = (name, socket, x, y) => ({
 
 module.exports.createObject = () => ({
     type: 'object',
+    side: 'none',
     id: 0,
     textureName: '',
     scale: 0.25, 
@@ -74,6 +75,9 @@ module.exports.createEntity = () => ({
     attack: {
         enable: false,
         damageable: false,
+        bulletDamage: 0,
+        bulletTexture: '',
+        bulletSpeed: 0,
     },
     movement: {
         enable: false,
@@ -98,6 +102,7 @@ module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.
     object.id = id
     object.rotate = 3*Math.PI/2
     object.textureName = textureName
+    object.side = 'player'
 
     object.movement.enable = true
     object.movement.speedY = speed
@@ -160,5 +165,9 @@ module.exports.createEnemy = (x=0, y=0, id=0) => {
     for (let point of object.movement.points) {point.step = 0.4}
 
     object.attack.damageable = true
+    object.attack.enable = true
+    object.attack.bulletSpeed = 0.5
+    object.attack.bulletTexture = 'bullet02'
+    object.attack.bulletDamage = 1
     return object
 }

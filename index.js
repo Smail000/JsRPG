@@ -114,7 +114,12 @@ var updaterLoop = setInterval(() => {
                         States.boost.func(player)
     
                         GameObjects.splice(objId, 1)
-                        return
+                        continue
+                    } else
+
+                    if (obj.damage.canDamage) {
+                        console.log(`Player ${player.name} got ${obj.damage.value} damage`)
+                        GameObjects.splice(objId, 1)
                     }
                     
                 }
@@ -127,14 +132,16 @@ var updaterLoop = setInterval(() => {
                 let anotherObj = GameObjects[anotherObjId]
                 if (anotherObj.type != 'object') continue
 
-                if (anotherObj.damage.canDamage && (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance)) {
+                if (anotherObj.damage.canDamage && 
+                    (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance) && 
+                    anotherObj.side == 'player') {
                     GameObjects.splice(anotherObjId, 1)
                     obj.health -= anotherObj.damage.value
                     
                     if (obj.health <= 0) {
                         GameObjects.splice(objId, 1)
+                        continue
                     }
-                    return
                 }
             }
         }
@@ -166,6 +173,27 @@ var bulletsShooterAndStateChecker = setInterval(() => {
         if (player.speedLimitReachedTimes > 0) player.speedLimitReachedTimes-- 
     }
 }, 800)
+    
+var enemyBulletShooter = setInterval(() => {
+    for (let enemy of GameObjects) {
+        if (enemy.type != 'entity') continue
+        if (enemy.attack.enable) {
+            let bullet = createBullet(
+                x=enemy.x, 
+                y=enemy.y, 
+                id=GameObjectCount, 
+                textureName=enemy.attack.bulletTexture, 
+                speed=enemy.attack.bulletSpeed,
+                damage=enemy.attack.bulletDamage
+            )
+            bullet.rotate = Math.PI/2
+            bullet.side = 'enemy'
+            bullet.collision.enable = true
+            GameObjects.push(bullet)
+            GameObjectCount++
+        }
+    }
+}, 2000)
 
 var boostGenerator = setInterval(() => {
     GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
