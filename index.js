@@ -146,7 +146,7 @@ var updaterLoop = setInterval(() => {
             }
         }
     }
-    GameObjects = GameObjects.filter(n => n.y < 115 && n.y > -15 && n.x < 115 && n.x > -15 )
+    GameObjects = GameObjects.filter(n => n.y < 1.15 && n.y > -0.15 && n.x < 1.15 && n.x > -0.15 )
     io.emit('move', {players: playersInGame.map(n => ({
         name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
     })), objects: GameObjects})
@@ -196,12 +196,12 @@ var enemyBulletShooter = setInterval(() => {
 }, 2000)
 
 var boostGenerator = setInterval(() => {
-    GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
+    GameObjects.push(createSpeedBoost(x=randint(3, 97)/100, y=-0.01, id=GameObjectCount))
     GameObjectCount++
 }, 20000)
 
 setInterval(() => {
-    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
+    GameObjects.push(createEnemy(x=0.5, y=-0.1, id=GameObjectCount))
     GameObjectCount++
 }, 5000)
 

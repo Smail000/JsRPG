@@ -6,7 +6,7 @@ module.exports.States = { // seconds
         func: (obj) => {
             obj.options.bulletTexture = 'bullet01'
             obj.options.bulletDamage = 1
-            obj.options.bulletSpeed = -0.5
+            obj.options.bulletSpeed = -0.005
         }
     },
 
@@ -15,7 +15,7 @@ module.exports.States = { // seconds
         func: (obj) => {
             obj.options.bulletTexture = 'bullet21'
             obj.options.bulletDamage = 5
-            obj.options.bulletSpeed = -1
+            obj.options.bulletSpeed = -0.01
         }
     },
 }
@@ -33,7 +33,7 @@ module.exports.createPlayer = (name, socket, x, y) => ({
         airshipTexture: 'airshipTexture',
         bulletTexture: 'bullet01',
         bulletDamage: 1,
-        bulletSpeed: -0.5,
+        bulletSpeed: -0.005,
     }
 })
 
@@ -94,7 +94,7 @@ module.exports.createEntity = () => ({
     },
 })
 
-module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.5, damage=1) => {
+module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.005, damage=1) => {
     let object = module.exports.createObject()
 
     object.x = x
@@ -110,7 +110,7 @@ module.exports.createBullet = (x=0, y=0, id=0, textureName='bullet01', speed=-0.
     object.damage.canDamage = true
     object.damage.value = damage
 
-    object.collision.distance = 3
+    object.collision.distance = 0.03
     return object
 }
 
@@ -123,10 +123,10 @@ module.exports.createSpeedBoost = (x=0, y=0, id=0) => {
     object.textureName = 'speedBoost'
 
     object.movement.enable = true
-    object.movement.speedY = 0.1
+    object.movement.speedY = 0.001
 
     object.collision.enable = true
-    object.collision.distance = 3
+    object.collision.distance = 0.03
     return object
 }
 
@@ -146,27 +146,27 @@ module.exports.createEnemy = (x=0, y=0, id=0) => {
     object.movement.loop = true
     object.movement.points = [
         {
-            x: 50,
-            y: 50,
+            x: 0.5,
+            y: 0.5,
         },
         {
-            x: 10,
-            y: 10,
+            x: 0.1,
+            y: 0.1,
         },
         {
-            x: 90,
-            y: 10,
+            x: 0.9,
+            y: 0.1,
         },
         {
-            x: 50,
-            y: 50,
+            x: 0.5,
+            y: 0.5,
         } 
     ]
-    for (let point of object.movement.points) {point.step = 0.4}
+    for (let point of object.movement.points) {point.step = 0.004}
 
     object.attack.damageable = true
     object.attack.enable = true
-    object.attack.bulletSpeed = 0.5
+    object.attack.bulletSpeed = 0.005
     object.attack.bulletTexture = 'bullet02'
     object.attack.bulletDamage = 1
     return object
