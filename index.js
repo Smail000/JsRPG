@@ -27,6 +27,11 @@ var GameObjects = [] // object ->
 
 var GameObjectCount = 0
 
+// Ticker
+const { Ticker } = require('./ticker.js')
+const TickerObj = new Ticker()
+var gameTickerSpeed = 1
+
 // Static folder
 app.use(express.static('static'))
 
@@ -81,8 +86,8 @@ io.on('connection', (socket) => {
     })
 })
 
-// tick updater loop
-var updaterLoop = setInterval(() => {
+// updater loop
+TickerObj.append('updaterLoop', () => {
     for (var objId in GameObjects) {
         let obj = GameObjects[objId]
 
@@ -152,7 +157,7 @@ var updaterLoop = setInterval(() => {
     })), objects: GameObjects})
 }, 10)
 
-var bulletsShooterAndStateChecker = setInterval(() => {
+TickerObj.append('PlayerBulletsShooterAndStateChecker', () => {
     for (let player of playersInGame) {
         if (!isNaN(States[player.state].duration) && (performance.now()-player.stateTime)/1000 > States[player.state].duration) {
             States.base.func(player)
@@ -173,8 +178,8 @@ var bulletsShooterAndStateChecker = setInterval(() => {
         if (player.speedLimitReachedTimes > 0) player.speedLimitReachedTimes-- 
     }
 }, 800)
-    
-var enemyBulletShooter = setInterval(() => {
+
+TickerObj.append('enemyBulletShooter', () => {
     for (let enemy of GameObjects) {
         if (enemy.type != 'entity') continue
         if (enemy.attack.enable) {
@@ -195,15 +200,19 @@ var enemyBulletShooter = setInterval(() => {
     }
 }, 2000)
 
-var boostGenerator = setInterval(() => {
+TickerObj.append('boostGenerator', () => {
     GameObjects.push(createSpeedBoost(x=randint(3, 97)/100, y=-0.01, id=GameObjectCount))
     GameObjectCount++
 }, 20000)
 
-setInterval(() => {
+TickerObj.append('enemyCreator', () => {
     GameObjects.push(createEnemy(x=0.5, y=-0.1, id=GameObjectCount))
     GameObjectCount++
 }, 5000)
+
+var tickerInterval = setInterval(() => {
+    TickerObj.tick(gameTickerSpeed)
+}, 1)
 
 // here we go
 server.listen(3000, hostname, () => {
