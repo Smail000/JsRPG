@@ -4,7 +4,7 @@ module.exports.Ticker = class Ticker {
         this.data = {} // data -> {anyKey: {func: function, ticksCount: number, currentTick: number}}
     }
 
-    tick(leastTime=0) { // seconds
+    async tick(leastTime=0) { // seconds
         let startTime = performance.now()
         for (let key in this.data) {
             this.data[key].currentTick++
@@ -14,7 +14,13 @@ module.exports.Ticker = class Ticker {
             }
         }
 
-        while ((performance.now()-startTime)/1000 < leastTime) {}
+        // if ((performance.now()-startTime)/1000 < leastTime) {
+        //     new Promise((resolve, reject) => {
+        //         setTimeout(() => {}, (performance.now()-startTime))
+        //     })
+        //     // await wait
+        // }
+
     }
 
     append(key, func, ticksCount) {

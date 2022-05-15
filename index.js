@@ -30,7 +30,7 @@ var GameObjectCount = 0
 // Ticker
 const { Ticker } = require('./ticker.js')
 const TickerObj = new Ticker()
-var gameTickerSpeed = 1
+var gameTickerSpeed = 0
 
 // Static folder
 app.use(express.static('static'))
@@ -155,7 +155,7 @@ TickerObj.append('updaterLoop', () => {
     io.emit('move', {players: playersInGame.map(n => ({
         name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
     })), objects: GameObjects})
-}, 10)
+}, 1)
 
 TickerObj.append('PlayerBulletsShooterAndStateChecker', () => {
     for (let player of playersInGame) {
@@ -212,7 +212,7 @@ TickerObj.append('enemyCreator', () => {
 
 var tickerInterval = setInterval(() => {
     TickerObj.tick(gameTickerSpeed)
-}, 1)
+}, 0)
 
 // here we go
 server.listen(3000, hostname, () => {
