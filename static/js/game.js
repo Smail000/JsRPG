@@ -12,11 +12,11 @@ const app = new Screen()
 window.app = app
 
 // Формирование звезд
-for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.renderer.width/1000)));i++) { // 
+for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.px/10)));i++) { // 
     var stars_obj = new SimpleObject(textures.starTexture)
-    stars_obj.body.scale.set(app.renderer.width/1000)
-    stars_obj.body.x = app.renderer.width*0.5
-    stars_obj.body.y = i*starsHeight*(app.renderer.width/1000) + starsHeight*(app.renderer.width/1000)/2
+    stars_obj.body.scale.set(app.px/10)
+    stars_obj.body.x = app.px*50
+    stars_obj.body.y = i*starsHeight*(app.px/10) + starsHeight*(app.px/10)/2
     starsArr.push(stars_obj)
 }
 
@@ -24,8 +24,8 @@ for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.renderer.width/10
 app.ticker.add(delta => {
     for (let star of starsArr) {
         star.body.y += starsSpeed
-        if (star.body.y > window.innerHeight+(starsHeight*(app.renderer.width/1000))/2) {
-            star.body.y = -(starsHeight*(app.renderer.width/1000))/2
+        if (star.body.y > window.innerHeight+(starsHeight*(app.px/10))/2) {
+            star.body.y = -(starsHeight*(app.px/10))/2
         }
     }
 })
@@ -33,8 +33,8 @@ app.ticker.add(delta => {
 // Создание корабля
 var airship = new SimpleObject(textures.airshipTexture)
 airship.body.scale.set(0.33)
-airship.body.x = app.renderer.width * 0.5
-airship.body.y = app.renderer.height * 0.8
+airship.body.x = app.px * 50
+airship.body.y = app.py * 80
 
 // Реация на движение
 socket.on('move', (msg) => {
@@ -42,13 +42,13 @@ socket.on('move', (msg) => {
     for (var player of msg.players) {
         if (player.name != PlayerName) {
             if (Object.keys(otherPlayers).includes(player.name)) {
-                otherPlayers[player.name].body.x = player.x * window.innerWidth
-                otherPlayers[player.name].body.y = player.y * window.innerHeight
+                otherPlayers[player.name].body.x = (player.x/100) * window.innerWidth
+                otherPlayers[player.name].body.y = (player.y/100) * window.innerHeight
             } else {
                 otherPlayers[player.name] = new SimpleObject(textures[player.texture])
                 otherPlayers[player.name].body.scale.set(0.33)
-                otherPlayers[player.name].body.x = app.renderer.width * 0.5
-                otherPlayers[player.name].body.y = app.renderer.py * 0.8
+                otherPlayers[player.name].body.x = app.px * 50
+                otherPlayers[player.name].body.y = app.py * 80
             }
         }
     }
@@ -60,8 +60,8 @@ socket.on('move', (msg) => {
         if (allObjectsIds.includes(obj.id)) {
             objects.find((elem, id, _) => {
                 if (obj.id == elem.id) {
-                    objects[id].obj.body.x = obj.x * window.innerWidth
-                    objects[id].obj.body.y = obj.y * window.innerHeight
+                    objects[id].obj.body.x = (obj.x/100) * window.innerWidth
+                    objects[id].obj.body.y = (obj.y/100) * window.innerHeight
                 }
                 return obj.id == elem.id
             })
@@ -69,8 +69,8 @@ socket.on('move', (msg) => {
             let newObj = new SimpleObject(textures[obj.textureName])
             newObj.body.scale.set(obj.scale)
             newObj.body.rotation = obj.rotate
-            newObj.body.x = obj.x * window.innerWidth
-            newObj.body.y = obj.y * window.innerHeight
+            newObj.body.x = (obj.x/100) * window.innerWidth
+            newObj.body.y = (obj.y/100) * window.innerHeight
             objects.push({
                 id: obj.id,
                 obj: newObj
@@ -135,8 +135,8 @@ socket.on('fastMove', (msg) => {
 // Регистрация на игру
 socket.emit('register', {
     name: PlayerName,
-    x: airship.body.x/app.renderer.width,
-    y: airship.body.y/app.renderer.height,
+    x: airship.body.x/app.px,
+    y: airship.body.y/app.py,
 })
 
 
@@ -149,8 +149,8 @@ app.ticker.start()
 setInterval(() => { 
     if (coordChanged) {
         socket.emit('move', {
-            x: airship.body.x/app.renderer.width,
-            y: airship.body.y/app.renderer.height
+            x: airship.body.x/app.px,
+            y: airship.body.y/app.py
         })
         coordChanged = false
     }
