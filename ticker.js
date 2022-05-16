@@ -1,42 +1,39 @@
 const { performance } = require('perf_hooks')
+
 module.exports.Ticker = class Ticker {
     constructor() {
-        this.data = {} // data -> {anyKey: {func: function, ticksCount: number, currentTick: number}}
+        this.data = {}
+        this.speedRate = 1
     }
 
-    async tick(leastTime=0) { // seconds
-        let startTime = performance.now()
-        for (let key in this.data) {
-            this.data[key].currentTick++
-            if (this.data[key].currentTick >= this.data[key].ticksCount) {
-                this.data[key].func()
-                this.data[key].currentTick = 0
-            }
-        }
-
-        // if ((performance.now()-startTime)/1000 < leastTime) {
-        //     new Promise((resolve, reject) => {
-        //         setTimeout(() => {}, (performance.now()-startTime))
-        //     })
-        //     // await wait
-        // }
-
-    }
-
-    append(key, func, ticksCount) {
+    append(key, func, delay) {
         this.data[key] = {
             func: func,
-            ticksCount: ticksCount,
-            currentTick: 0
+            startTime: performance.now(),
+            delay: delay,
         }
     }
 
-    changeTicks(key, ticksCount) {
-        this.data[key].ticksCount = ticksCount
+    changeDelay(key, delay) {
+        this.data[key].startTime = performance.now()
+        this.data[key].delay = delay
     }
 
     changeFunc(key, func) {
         this.data[key].func = func
     }
-}
 
+    changeKey(key, newKey) {
+        this.data[newKey] = this.data[key]
+        delete this.data[key]
+    }
+
+    tick() {
+        for (let key in this.data) {
+            if (performance.now()-this.data[key].startTime > this.data[key].delay) {
+                this.data[key].startTime = performance.now()
+                this.data[key].func()
+            }
+        }
+    }
+}

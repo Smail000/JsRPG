@@ -11,10 +11,16 @@ class Screen {
         });
         document.body.appendChild(this.renderer.view);
 
+        this.px = this.renderer.width / 100
+        this.py = this.renderer.height / 100
+
         window.addEventListener("resize", () => {
             ScreenWidth = window.innerWidth-12
             ScreenHeight = window.innerHeight-21
             this.renderer.resize(ScreenWidth, ScreenHeight)
+
+            this.px = this.renderer.width / 100
+            this.py = this.renderer.height / 100
         });
 
         

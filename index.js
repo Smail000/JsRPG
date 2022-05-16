@@ -20,17 +20,13 @@ var playersInGame = []
 // options: { airshipTexture: string, bulletTexture: string, bulletDamage: number, health: number }}
 
 var GameObjects = [] // object -> 
-// {id: number, textureName: string, scale: number, rotate: number, x: number, y: number, 
-// lineMovement: {enable: boolean, speedX: number, speedY: number}, 
-// roadMovement: {enable: boolean, points: [{x, y, step}...], correntPointId: number, destroyAfterGoal: bool}, 
+// {type: string, id: number, textureName: string, scale: number, rotate: number, x: number, y: number,
+// ovement: {enable: boolean, points: [{x, y, step}...], correntPointId: number, destroyAfterGoal: bool}, 
 // collision: {enable: bool, distance: number, damage: number}} 
 
 var GameObjectCount = 0
 
 // Ticker
-const { Ticker } = require('./ticker.js')
-const TickerObj = new Ticker()
-var gameTickerSpeed = 0
 
 // Static folder
 app.use(express.static('static'))
@@ -87,7 +83,7 @@ io.on('connection', (socket) => {
 })
 
 // updater loop
-TickerObj.append('updaterLoop', () => {
+const updaterLoop = setInterval(() => {
     for (var objId in GameObjects) {
         let obj = GameObjects[objId]
 
@@ -151,13 +147,13 @@ TickerObj.append('updaterLoop', () => {
             }
         }
     }
-    GameObjects = GameObjects.filter(n => n.y < 1.15 && n.y > -0.15 && n.x < 1.15 && n.x > -0.15 )
+    GameObjects = GameObjects.filter(n => n.y < 115 && n.y > -15 && n.x < 115 && n.x > -15 )
     io.emit('move', {players: playersInGame.map(n => ({
         name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
     })), objects: GameObjects})
-}, 1)
+}, 10)
 
-TickerObj.append('PlayerBulletsShooterAndStateChecker', () => {
+const PlayerBulletsShooterAndStateChecker = setInterval(() => {
     for (let player of playersInGame) {
         if (!isNaN(States[player.state].duration) && (performance.now()-player.stateTime)/1000 > States[player.state].duration) {
             States.base.func(player)
@@ -179,7 +175,7 @@ TickerObj.append('PlayerBulletsShooterAndStateChecker', () => {
     }
 }, 800)
 
-TickerObj.append('enemyBulletShooter', () => {
+const enemyBulletShooter = setInterval(() => {
     for (let enemy of GameObjects) {
         if (enemy.type != 'entity') continue
         if (enemy.attack.enable) {
@@ -200,19 +196,16 @@ TickerObj.append('enemyBulletShooter', () => {
     }
 }, 2000)
 
-TickerObj.append('boostGenerator', () => {
-    GameObjects.push(createSpeedBoost(x=randint(3, 97)/100, y=-0.01, id=GameObjectCount))
+
+var boostGenerator = setInterval(() => {
+    GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
     GameObjectCount++
 }, 20000)
 
-TickerObj.append('enemyCreator', () => {
-    GameObjects.push(createEnemy(x=0.5, y=-0.1, id=GameObjectCount))
+setInterval(() => {
+    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
     GameObjectCount++
 }, 5000)
-
-var tickerInterval = setInterval(() => {
-    TickerObj.tick(gameTickerSpeed)
-}, 0)
 
 // here we go
 server.listen(3000, hostname, () => {
