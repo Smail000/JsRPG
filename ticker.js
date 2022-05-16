@@ -28,6 +28,10 @@ module.exports.Ticker = class Ticker {
         delete this.data[key]
     }
 
+    delete(key) {
+        delete this.data[key]
+    }
+
     tick() {
         for (let key in this.data) {
             if (performance.now()-this.data[key].startTime > this.data[key].delay) {

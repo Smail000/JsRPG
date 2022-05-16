@@ -42,7 +42,23 @@ io.on('connection', (socket) => {
 
     socket.on('register', (msg) => { // name, x, y
         if (debug) console.log('a user registered to the game')
-        playersInGame.push(createPlayer(msg.name, socket, msg.x, msg.y))
+        let newPlayer = createPlayer(msg.name, socket, msg.x, msg.y)
+        playersInGame.push(newPlayer)
+
+        TickerObj.append(`player_${newPlayer.name}`, () => {
+            GameObjects.push(
+                createBullet(
+                    x=newPlayer.x, 
+                    y=newPlayer.y, 
+                    id=GameObjectCount, 
+                    textureName=newPlayer.options.bulletTexture, 
+                    speed=newPlayer.options.bulletSpeed,
+                    damage=newPlayer.options.bulletDamage
+                )
+            )
+            GameObjectCount++
+            if (newPlayer.speedLimitReachedTimes > 0) newPlayer.speedLimitReachedTimes-- 
+        }, 800)
     })
 
     // socket.on('createObject', (obj) => { // object example
@@ -50,6 +66,18 @@ io.on('connection', (socket) => {
     //     GameObjectCount++
     //     GameObjects.push(obj)
     // })
+
+    socket.on('console', (msg) => { // object example
+        if (msg.data == 'godmode') {
+            for (let player of playersInGame) {
+                if (player.socket == socket) {
+                    player.state = 'god'
+                    player.stateTime = performance.now()
+                    States.god.func(player)
+                }
+            }
+        }
+    })
 
     socket.on('move', (msg) => { // x, y
         for (let player of playersInGame) {
@@ -76,6 +104,7 @@ io.on('connection', (socket) => {
             if (playersInGame[playerId]['socket'] == socket) {
                 io.emit('playerDisconnected', {data: playersInGame[playerId].name})
                 if (debug) console.log(`Player with name ${playersInGame[playerId].name} has disconnected`)
+                TickerObj.delete(`player_${playersInGame[playerId].name}`)
                 playersInGame.splice(playerId, 1)
                 return
             }
@@ -118,11 +147,10 @@ TickerObj.append('updaterLoop', () => {
     
                         GameObjects.splice(objId, 1)
                         continue
-                    } else
-
-                    if (obj.damage.canDamage) {
+                    } else if (obj.damage.canDamage) {
                         console.log(`Player ${player.name} got ${obj.damage.value} damage`)
                         GameObjects.splice(objId, 1)
+                        continue
                     }
                     
                 }
@@ -138,18 +166,30 @@ TickerObj.append('updaterLoop', () => {
                 if (anotherObj.damage.canDamage && 
                     (getDistance(anotherObj.x, anotherObj.y, obj.x, obj.y) <= anotherObj.collision.distance) && 
                     anotherObj.side == 'player') {
-                    GameObjects.splice(anotherObjId, 1)
                     obj.health -= anotherObj.damage.value
-                    
+
+                    GameObjects.splice(anotherObjId, 1)
+
                     if (obj.health <= 0) {
+                        if (anotherObjId < objId) objId-- 
                         GameObjects.splice(objId, 1)
-                        continue
                     }
+                    
+                    continue
                 }
             }
         }
     }
-    GameObjects = GameObjects.filter(n => n.y < 115 && n.y > -15 && n.x < 115 && n.x > -15 )
+    let i = 0
+    while (i < GameObjects.length-1) {
+        let obj = GameObjects[i]
+        if (obj.y > 115 && obj.y < -15 && obj.x > 115 && obj.x < -15) {
+            GameObjects.splice(i, 1)
+            continue
+        }
+        i++
+    }
+
     io.emit('move', {players: playersInGame.map(n => ({
         name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
     })), objects: GameObjects})
@@ -162,18 +202,6 @@ TickerObj.append('playerBulletsShooterAndStateChecker', () => {
             player.state = 'base'
             player.stateTime = performance.now()
         }
-        GameObjects.push(
-            createBullet(
-                x=player.x, 
-                y=player.y, 
-                id=GameObjectCount, 
-                textureName=player.options.bulletTexture, 
-                speed=player.options.bulletSpeed,
-                damage=player.options.bulletDamage
-            )
-        )
-        GameObjectCount++
-        if (player.speedLimitReachedTimes > 0) player.speedLimitReachedTimes-- 
     }
 }, 800)
 
@@ -198,16 +226,16 @@ TickerObj.append('enemyBulletShooter', () => {
     }
 }, 2000)
 
+TickerObj.append('enemyCreator', () => {
+    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
+    GameObjectCount++
+}, 5000)
 
 TickerObj.append('boostGenerator', () => {
     GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
     GameObjectCount++
 }, 20000)
 
-TickerObj.append('enemyCreator', () => {
-    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
-    GameObjectCount++
-}, 5000)
 
 
 

@@ -25,7 +25,7 @@ var textures = {
     simpleEnemy: new PIXI.Texture.from(`assets/airship/11B.png`),
 }
 
-for (let i = 1; i < 22; i++) {
+for (let i = 1; i < 67; i++) {
     i = (i < 10 ? `0${i}` : i).toString()
     textures[`bullet${i}`] = new PIXI.Texture.from(`assets/bullets/${i}.png`)
 }

@@ -18,6 +18,15 @@ module.exports.States = { // seconds
             obj.options.bulletSpeed = -1
         }
     },
+
+    god: {
+        duration: 9999999999,
+        func: (obj) => {
+            obj.options.bulletTexture = 'bullet49'
+            obj.options.bulletDamage = 999
+            obj.options.bulletSpeed = -1
+        }
+    },
 }
 
 module.exports.createPlayer = (name, socket, x, y) => ({
