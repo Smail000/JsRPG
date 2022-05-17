@@ -183,7 +183,7 @@ TickerObj.append('updaterLoop', () => {
     let i = 0
     while (i < GameObjects.length-1) {
         let obj = GameObjects[i]
-        if (obj.y > 1.15 && obj.y < -0.15 && obj.x > 1.15 && obj.x < -0.15) {
+        if (obj.y > 1.15 || obj.y < -0.15 || obj.x > 1.15 || obj.x < -0.15) {
             GameObjects.splice(i, 1)
             continue
         }
@@ -197,7 +197,15 @@ TickerObj.append('updaterLoop', () => {
             y: n.y, 
             texture: n.options.airshipTexture
         })), 
-        objects: GameObjects})
+        objects: GameObjects.map(n => ({
+            id: n.id,
+            x: n.x,
+            y: n.y,
+            scale: n.scale,
+            rotate: n.rotate,
+            textureName: n.textureName
+        }))
+    })
 }, 10)
 
 TickerObj.append('playerBulletsShooterAndStateChecker', () => {
