@@ -37,7 +37,9 @@ module.exports.createPlayer = (name, socket, x, y) => ({
     state: 'base',
     stateTime: performance.now(),
     speedLimitReachedTimes: 0,
-    health: 100,
+    currentHealth: 5,
+    maxHealth: 100,
+
     options: {
         airshipTexture: 'airshipTexture',
         bulletTexture: 'bullet01',

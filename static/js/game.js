@@ -11,6 +11,12 @@ while (true) {
 const app = new Screen()
 window.app = app
 
+// Показатель здоровья
+const healbar = new PIXI.Text('-',{fontFamily : 'Arial', fontSize: 20, fill : '#FF687A', align : 'center'});
+window.app.stage.addChild(healbar)
+healbar.x = app.renderer.width * 87/100
+healbar.y = app.renderer.height * 1/100
+
 // Формирование звезд
 for (let i=-1;i<Math.ceil(window.innerHeight/(starsHeight*(app.renderer.width/1000)));i++) {
     var stars_obj = new SimpleObject(textures.starTexture)
@@ -50,6 +56,11 @@ socket.on('move', (msg) => { // player: {name, x, y, texture}, objects: {id, x, 
                 otherPlayers[player.name].body.x = app.renderer.width * 0.5
                 otherPlayers[player.name].body.y = app.renderer.height * 0.8
             }
+        } else {
+            playerCurrentHealth = player.currentHealth
+            playerMaxHealth = player.maxHealth
+
+            healbar.text = `${playerCurrentHealth}/${playerMaxHealth}`
         }
     }
 
@@ -130,6 +141,15 @@ socket.on('playerDisconnected', (msg) => {
 
 socket.on('fastMove', (msg) => {
     alert(`Превышена скорость движения: ${msg.data} `)
+})
+
+socket.on('death', _ => {
+    healbar.text = `0/${playerMaxHealth}`
+    let deathMessage = new PIXI.Text('Потрачено',{fontFamily : 'Arial', fontSize: 40, fill : '#FF1100', align : 'center'});
+    deathMessage.anchor.set(0.5)
+    deathMessage.x = app.renderer.width * 50/100
+    deathMessage.y = app.renderer.height * 50/100
+    window.app.stage.addChild(deathMessage)
 })
 
 // Регистрация на игру

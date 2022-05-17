@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
             for (let player of playersInGame) {
                 if (player.socket == socket) {
                     player.state = 'god'
-                    player.health = 9999
+                    player.currenthealth = 9999
                     player.stateTime = performance.now()
                     States.god.func(player)
                 }
@@ -119,7 +119,10 @@ io.on('connection', (socket) => {
 
 // updater loop
 TickerObj.append('updaterLoop', () => {
-    for (var objId in GameObjects) {
+    let skip = false
+
+    let objId = 0
+    while (objId < GameObjects.length) {
         let obj = GameObjects[objId]
 
         if (obj.movement.enable) {
@@ -138,10 +141,12 @@ TickerObj.append('updaterLoop', () => {
                     obj.movement.correntPointId = 0
                 }
             }
-        }
+        } 
         
         if (obj.type == 'object' && obj.collision.enable) {
-            for (let player of playersInGame)  {
+            let playerId = 0
+            while (playerId < playersInGame.length)  {
+                let player = playersInGame[playerId]
                 if (getDistance(player.x, player.y, obj.x, obj.y) <= obj.collision.distance) {
 
                     if (obj.textureName == 'speedBoost') {
@@ -150,19 +155,26 @@ TickerObj.append('updaterLoop', () => {
                         States.boost.func(player)
     
                         GameObjects.splice(objId, 1)
-                        continue
+                        break
                     } else if (obj.damage.canDamage) {
-                        console.log(`Player ${player.name} got ${obj.damage.value} damage`)
+                        // if (debug) console.log(`Player ${player.name} got ${obj.damage.value} damage`)
+                        player.currentHealth -= obj.damage.value
+
+                        if (player.currentHealth < 1) {
+                            player.socket.emit('death')
+                            // player.socket.disconnect()
+                            TickerObj.delete(`player_${player.name}`)
+                            playersInGame.splice(playerId, 1)
+                        }
+
                         GameObjects.splice(objId, 1)
-                        continue
+                        break
                     }
                     
                 }
+                playerId++
             }
-        }
-
-
-        if (obj.type == 'entity' && obj.attack.damageable) {
+        } else if (obj.type == 'entity' && obj.attack.damageable) {
             for (let anotherObjId in GameObjects)  {
                 let anotherObj = GameObjects[anotherObjId]
                 if (anotherObj.type != 'object') continue
@@ -173,16 +185,15 @@ TickerObj.append('updaterLoop', () => {
                     obj.health -= anotherObj.damage.value
 
                     GameObjects.splice(anotherObjId, 1)
-
-                    if (obj.health <= 0) {
-                        if (anotherObjId < objId) objId-- 
-                        GameObjects.splice(objId, 1)
-                    }
+                    if (anotherObjId < objId) objId-- 
+                    if (obj.health <= 0) GameObjects.splice(objId, 1)
                     
                     continue
                 }
             }
         }
+
+        if (!skip) objId++
     }
     let i = 0
     while (i < GameObjects.length-1) {
@@ -199,7 +210,9 @@ TickerObj.append('updaterLoop', () => {
             name: n.name, 
             x: n.x, 
             y: n.y, 
-            texture: n.options.airshipTexture
+            texture: n.options.airshipTexture,
+            maxHealth: n.maxHealth,
+            currentHealth: n.currentHealth,
         })), 
         objects: GameObjects.map(n => ({
             id: n.id,
@@ -210,6 +223,8 @@ TickerObj.append('updaterLoop', () => {
             textureName: n.textureName
         }))
     })
+    
+    
 }, 10)
 
 TickerObj.append('playerBulletsShooterAndStateChecker', () => {
