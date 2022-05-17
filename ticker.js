@@ -34,7 +34,7 @@ module.exports.Ticker = class Ticker {
 
     tick() {
         for (let key in this.data) {
-            if (performance.now()-this.data[key].startTime > this.data[key].delay) {
+            if ((performance.now()-this.data[key].startTime)*this.speedRate > this.data[key].delay) {
                 this.data[key].startTime = performance.now()
                 this.data[key].func()
             }

@@ -29,6 +29,7 @@ var GameObjectCount = 0
 // Ticker
 const { Ticker } = require('./ticker.js')
 const TickerObj = new Ticker()
+TickerObj.speedRate = 1
 
 // Static folder
 app.use(express.static('static'))
@@ -72,10 +73,13 @@ io.on('connection', (socket) => {
             for (let player of playersInGame) {
                 if (player.socket == socket) {
                     player.state = 'god'
+                    player.health = 9999
                     player.stateTime = performance.now()
                     States.god.func(player)
                 }
             }
+        } else if (msg.data == 'setSpeedRate') {
+            TickerObj.speedRate = msg.speedRate
         }
     })
 
