@@ -8,20 +8,15 @@ class Screen {
             height: ScreenHeight,
             backgroundColor: 0x090033, //PIXI.utils.rgb2hex([16,0,89]),
             resolution: 1,
-        });
-        document.body.appendChild(this.renderer.view);
+        })
 
-        this.px = this.renderer.width / 100
-        this.py = this.renderer.height / 100
+        document.body.appendChild(this.renderer.view)
 
         window.addEventListener("resize", () => {
             ScreenWidth = window.innerWidth-12
             ScreenHeight = window.innerHeight-21
             this.renderer.resize(ScreenWidth, ScreenHeight)
-
-            this.px = this.renderer.width / 100
-            this.py = this.renderer.height / 100
-        });
+        })
 
         
         this.ticker = new PIXI.Ticker()

@@ -183,16 +183,21 @@ TickerObj.append('updaterLoop', () => {
     let i = 0
     while (i < GameObjects.length-1) {
         let obj = GameObjects[i]
-        if (obj.y > 115 && obj.y < -15 && obj.x > 115 && obj.x < -15) {
+        if (obj.y > 1.15 && obj.y < -0.15 && obj.x > 1.15 && obj.x < -0.15) {
             GameObjects.splice(i, 1)
             continue
         }
         i++
     }
 
-    io.emit('move', {players: playersInGame.map(n => ({
-        name: n.name, x: n.x, y: n.y, texture: n.options.airshipTexture
-    })), objects: GameObjects})
+    io.emit('move', {
+        players: playersInGame.map(n => ({
+            name: n.name, 
+            x: n.x, 
+            y: n.y, 
+            texture: n.options.airshipTexture
+        })), 
+        objects: GameObjects})
 }, 10)
 
 TickerObj.append('playerBulletsShooterAndStateChecker', () => {
@@ -227,12 +232,12 @@ TickerObj.append('enemyBulletShooter', () => {
 }, 2000)
 
 TickerObj.append('enemyCreator', () => {
-    GameObjects.push(createEnemy(x=50, y=-10, id=GameObjectCount))
+    GameObjects.push(createEnemy(x=0.50, y=-0.10, id=GameObjectCount))
     GameObjectCount++
 }, 5000)
 
 TickerObj.append('boostGenerator', () => {
-    GameObjects.push(createSpeedBoost(x=randint(3, 97), y=-1, id=GameObjectCount))
+    GameObjects.push(createSpeedBoost(x=randint(3, 97)/100, y=-0.01, id=GameObjectCount))
     GameObjectCount++
 }, 20000)
 
