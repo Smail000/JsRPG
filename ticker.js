@@ -29,7 +29,9 @@ module.exports.Ticker = class Ticker {
     }
 
     delete(key) {
-        delete this.data[key]
+        if (Object.keys(this.data).includes(key)) {
+            delete this.data[key]
+        }
     }
 
     tick() {

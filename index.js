@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
                     player.speedLimitReachedTimes++
                     if (player.speedLimitReachedTimes >= speedLimitBorder) {
                         player.speedLimitReachedTimes = 0
-                        socket.emit('fastMove', {data: Math.round(getDistance(player.x, player.y, msg.x, msg.y))})
+                        socket.emit('fastMove', {data: getDistance(player.x, player.y, msg.x, msg.y)})
                     }
                 }
 
@@ -163,6 +163,7 @@ TickerObj.append('updaterLoop', () => {
                         if (player.currentHealth < 1) {
                             player.socket.emit('death')
                             // player.socket.disconnect()
+                            player.socket.broadcast.emit('playerDisconnected', {data: playersInGame[playerId].name})
                             TickerObj.delete(`player_${player.name}`)
                             playersInGame.splice(playerId, 1)
                         }
@@ -186,7 +187,10 @@ TickerObj.append('updaterLoop', () => {
 
                     GameObjects.splice(anotherObjId, 1)
                     if (anotherObjId < objId) objId-- 
-                    if (obj.health <= 0) GameObjects.splice(objId, 1)
+                    if (obj.health <= 0) {
+                        TickerObj.delete(`enemy_${obj.id}`)
+                        GameObjects.splice(objId, 1)
+                    }
                     
                     continue
                 }
@@ -199,6 +203,7 @@ TickerObj.append('updaterLoop', () => {
     while (i < GameObjects.length-1) {
         let obj = GameObjects[i]
         if (obj.y > 1.15 || obj.y < -0.15 || obj.x > 1.15 || obj.x < -0.15) {
+            // TickerObj.delete(`enemy_${obj.id}`)
             GameObjects.splice(i, 1)
             continue
         }
@@ -237,29 +242,47 @@ TickerObj.append('playerBulletsShooterAndStateChecker', () => {
     }
 }, 800)
 
-TickerObj.append('enemyBulletShooter', () => {
-    for (let enemy of GameObjects) {
-        if (enemy.type != 'entity') continue
-        if (enemy.attack.enable) {
-            let bullet = createBullet(
-                x=enemy.x, 
-                y=enemy.y, 
-                id=GameObjectCount, 
-                textureName=enemy.attack.bulletTexture, 
-                speed=enemy.attack.bulletSpeed,
-                damage=enemy.attack.bulletDamage
-            )
-            bullet.rotate = Math.PI/2
-            bullet.side = 'enemy'
-            bullet.collision.enable = true
-            GameObjects.push(bullet)
-            GameObjectCount++
-        }
-    }
-}, 2000)
+// TickerObj.append('enemyBulletShooter', () => {
+//     for (let enemy of GameObjects) {
+//         if (enemy.type != 'entity') continue
+//         if (enemy.attack.enable) {
+//             let bullet = createBullet(
+//                 x=enemy.x, 
+//                 y=enemy.y, 
+//                 id=GameObjectCount, 
+//                 textureName=enemy.attack.bulletTexture, 
+//                 speed=enemy.attack.bulletSpeed,
+//                 damage=enemy.attack.bulletDamage
+//             )
+//             bullet.rotate = Math.PI/2
+//             bullet.side = 'enemy'
+//             bullet.collision.enable = true
+//             GameObjects.push(bullet)
+//             GameObjectCount++
+//         }
+//     }
+// }, 2000)
 
 TickerObj.append('enemyCreator', () => {
-    GameObjects.push(createEnemy(x=0.50, y=-0.10, id=GameObjectCount))
+    let enemy = createEnemy(x=0.50, y=-0.10, id=GameObjectCount)
+
+    TickerObj.append(`enemy_${GameObjectCount}`, () => {
+        let bullet = createBullet(
+            x=enemy.x, 
+            y=enemy.y, 
+            id=GameObjectCount, 
+            textureName=enemy.attack.bulletTexture, 
+            speed=enemy.attack.bulletSpeed,
+            damage=enemy.attack.bulletDamage
+        )
+        bullet.rotate = Math.PI/2
+        bullet.side = 'enemy'
+        bullet.collision.enable = true
+        GameObjects.push(bullet)
+        GameObjectCount++
+    }, 2000)
+
+    GameObjects.push(enemy)
     GameObjectCount++
 }, 5000)
 
